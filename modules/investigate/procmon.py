@@ -28,10 +28,10 @@ class CustomModule(Module):
 
     # This module must be always implemented, it is called by the run option
     def run_module(self):
-        # To access user provided attributes, use self._options dictionary
-        self._binlist_path = str(self._options["binlist_path"][0])
-        self._procmmon_path = str(self._options["procmon_path"][0])
-        self._output = str(self._options["output"][0])
+        # To access user provided attributes, use self.options dictionary
+        self._binlist_path = str(self.options["binlist_path"][0])
+        self._procmmon_path = str(self.options["procmon_path"][0])
+        self._output = str(self.options["output"][0])
 
         Thread(target=self.monitoring).start()
 

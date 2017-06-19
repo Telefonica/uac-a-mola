@@ -34,9 +34,13 @@ class Session(object):
         print ""
 
     def run(self):
-        print '[+] Running module...'
-        self._module.run_module()
-        print '[+] Module exited'
+        print colored('[+] Running module...', 'green', attrs=['bold'])
+        try:
+            self._module.run_module()
+        except Exception as error:
+            print colored('[!] Error running the module:', 'red', attrs=['bold'])
+            print colored("  => " + str(error), 'red', attrs=['bold'])
+        print colored('[+] Module exited', 'green', attrs=['bold'])
 
     def set(self, name, value):
         if name not in self._module.get_options_names():
@@ -50,8 +54,9 @@ class Session(object):
             m = importlib.import_module(path.replace('\\', '.'))
             print colored('[+] Module loaded!', 'green', attrs=['bold'])
             return m.CustomModule()
-        except ImportError:
-            print colored('[!] Error importing the module, bad module', 'red', attrs=['bold'])
+        except ImportError as error:
+            print colored('[!] Error importing the module:', 'red', attrs=['bold'])
+            print colored("  =>" + str(error), 'red', attrs=['bold'])
             return None
 
     def correct_module(self):

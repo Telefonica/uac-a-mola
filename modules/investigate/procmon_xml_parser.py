@@ -23,14 +23,14 @@ class CustomModule(Module):
 
     # This module must be always implemented, it is called by the run option
     def run_module(self):
-        # To access user provided attributes, use self._options dictionary
-        xml_path = str(self._options["xml_path"][0])
-        word = str(self._options["word"][0])
-        not_found = str(self._options["not_found"][0])
-        operation = str(self._options["operation"][0])
-        process_name = str(self._options["process_name"][0])
+        # To access user provided attributes, use self.options dictionary
+        xml_path = str(self.options["xml_path"][0])
+        word = str(self.options["word"][0])
+        not_found = str(self.options["not_found"][0])
+        operation = str(self.options["operation"][0])
+        process_name = str(self.options["process_name"][0])
 
-        self._tree = etree.parse(xml_path)
+        self.parse_tree(xml_path)
         events = self.events()
 
         if not_found != "False":
@@ -46,6 +46,9 @@ class CustomModule(Module):
             print p
 
         return self.paths(events)
+
+    def parse_tree(self, xml_path):
+        self._tree = etree.parse(xml_path)
 
     def events(self):
         return self._tree.findall('.//event')
