@@ -13,7 +13,8 @@ class CustomModule(Module):
                    "word": [None, "Keyword for searching for in the XML"],
                    "process_name": [None, "Keyword for searching by process name in the XML"],
                    "not_found": [True, "Search only events not found"],
-                   "operation": [None, "Search by Win Register operation"]}
+                   "operation": [None, "Search by Win Register operation"],
+                   "destination": [None, "Destination File to write results"]}
 
         # Constructor of the parent class
         super(CustomModule, self).__init__(information, options)
@@ -29,6 +30,7 @@ class CustomModule(Module):
         not_found = str(self.options["not_found"][0])
         operation = str(self.options["operation"][0])
         process_name = str(self.options["process_name"][0])
+        destination = str(self.options["destination"][0])
 
         self.parse_tree(xml_path)
         events = self.events()
@@ -42,10 +44,24 @@ class CustomModule(Module):
         if process_name != "None":
             events = self.events_proc_name(process_name, events)
 
-        for p in self.paths(events):
-            print p
+        self.results(destination, events)
 
-        return self.paths(events)
+    def results(self, destination=None, events=None):
+        if destination is not None:
+            try:
+                f = open(destination, "w")
+                print "[*] Writting to file: %s" % str(destination)
+            except:
+                print "[!] Error opening the file"
+
+            for p in self.paths(events):
+                f.write(p + "\n")
+
+            f.close()
+
+        else:
+            for p in self.paths(events):
+                print p
 
     def parse_tree(self, xml_path):
         self._tree = etree.parse(xml_path)

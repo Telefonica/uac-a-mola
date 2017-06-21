@@ -30,7 +30,11 @@ class Session(object):
         print " Options (Field = Value)"
         print " -----------------------"
         for key, value in opts.iteritems():
-            print colored(" %s" % key, 'red', attrs=['bold']) + " = %s (%s)\n" % (value[0], value[1])
+            if str(value[0]) == "None":
+                print colored(" %s" % key, 'red', attrs=['bold']) + " = %s (%s)\n" % (value[0], value[1])
+            else:
+                print colored(" %s" % key, 'red', attrs=['bold']) + " = " + colored("%s" % value[0], 'green', attrs=['bold']) + " (% s)\n" % (value[1])
+
         print ""
 
     def run(self):
