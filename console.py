@@ -4,7 +4,7 @@ from session import Session
 import readline
 import sys
 import os
-
+import banners
 
 END_COMMANDS = ['quit', 'exit', 'q']
 CLEAR_COMMANDS = ['clear', 'cls']
@@ -15,6 +15,8 @@ readline.set_completer_delims(' \t\n;')
 readline.parse_and_bind("tab: complete")
 readline.set_completer(comp.complete)
 
+print banners.get_banner()
+
 session = None
 
 while True:
@@ -24,7 +26,9 @@ while True:
             colored('uac-a-mola> ', 'yellow', attrs=['bold'])).split()
     else:
         user_input = raw_input(
-            colored(session.header(), 'yellow', attrs=['bold'])).split()
+            "uac-a-mola["
+            + colored(session.header(), 'yellow', attrs=['bold'])
+            + "]> ").split()
 
     if user_input == []:
         continue

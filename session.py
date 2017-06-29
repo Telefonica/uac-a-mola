@@ -9,7 +9,7 @@ class Session(object):
         self._path = path
 
     def header(self):
-        return self._path + '> '
+        return self._path.split("\\")[-1]
 
     def show(self):
         self.information()
@@ -31,14 +31,28 @@ class Session(object):
         print " -----------------------"
         for key, value in opts.iteritems():
 
-            if str(value[0]) == "None":
-                print colored(" %s" % key, 'red', attrs=['bold']) \
-                    + " = %s (%s)\n" % (value[0], value[1])
-            else:
-                print colored(" %s" % key, 'red', attrs=['bold']) \
-                    + " = " \
-                    + colored("%s" % value[0], 'green', attrs=['bold']) \
-                    + " (% s)\n" % (value[1])
+            # Parameter is mandataroy
+            if value[2] is True:
+                if str(value[0]) == "None":
+                    print " [" \
+                        + colored("REQUIRED", 'red', attrs=['bold']) \
+                        + "] %s" % key \
+                        + " = %s (%s)\n" % (value[0], value[1])
+                else:
+                    print " %s" % key \
+                        + " = " \
+                        + colored("%s" % value[0], 'green', attrs=['bold']) \
+                        + " (% s)\n" % (value[1])
+            # Parameter is optional
+            elif value[2] is False:
+                if str(value[0]) == "None":
+                    print " [OPTIONAL] %s" % key \
+                        + " = %s (%s)\n" % (value[0], value[1])
+                else:
+                    print " %s" % key \
+                        + " = " \
+                        + colored("%s" % value[0], 'green', attrs=['bold']) \
+                        + " (% s)\n" % (value[1])
 
         print ""
 

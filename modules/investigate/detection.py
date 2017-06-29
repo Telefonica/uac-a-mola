@@ -19,9 +19,6 @@ class CustomModule(Module):
     # This module must be always implemented, it is called by the run option
     def run_module(self):
         # customer arguments can be access by self.args["argument_name"], it is convinient to use the class variable self.args to referece variables, so it will contain the last value set by the user and permits the extensibility and the use of the modules methods from other modules.
-        self._binName = self.get_value("binName")
-        self._binFile = self.get_value("binFile")
-        self._procmonPath = self.get_value("procmonPath")
 
         # Initialization of the auxiliary module
         p = Procmon()

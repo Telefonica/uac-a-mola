@@ -21,4 +21,4 @@ class CustomModule(Module):
     # This module must be always implemented, it is called by the run option
     def run_module(self):
         # To access user provided attributes, use self._options dictionary
-        self._option_name = self._options["option_name"][0]
+        self.args["arg2"]
