@@ -30,10 +30,15 @@ class Session(object):
         print " Options (Field = Value)"
         print " -----------------------"
         for key, value in opts.iteritems():
+
             if str(value[0]) == "None":
-                print colored(" %s" % key, 'red', attrs=['bold']) + " = %s (%s)\n" % (value[0], value[1])
+                print colored(" %s" % key, 'red', attrs=['bold']) \
+                    + " = %s (%s)\n" % (value[0], value[1])
             else:
-                print colored(" %s" % key, 'red', attrs=['bold']) + " = " + colored("%s" % value[0], 'green', attrs=['bold']) + " (% s)\n" % (value[1])
+                print colored(" %s" % key, 'red', attrs=['bold']) \
+                    + " = " \
+                    + colored("%s" % value[0], 'green', attrs=['bold']) \
+                    + " (% s)\n" % (value[1])
 
         print ""
 
@@ -50,7 +55,7 @@ class Session(object):
         if name not in self._module.get_options_names():
             print colored('[!] Field not found', 'red', attrs=['bold'])
             return
-        self._module.set_option(name, value)
+        self._module.set_value(name, value)
 
     def instantiate_module(self, path):
         try:

@@ -11,27 +11,21 @@ class CustomModule(Module):
                        "Description": "This module executes procmon for monitoring a list of binaries provided by the user. Require administrator priviledges!",
                        "Author": "Santiago Hernandez Ramos"}
 
-        # -----------name-------description---default_value
-        options = {"binlist_path": [None, "Path to the binaries list"],
-                   "procmon_path": [None, "Path to procmon binary"],
-                   "output": ["results.xml", "Name of the XML output file"]}
+        # -----------name--------default_value---description---------mandatory?
+        options = {"binlist_path": [None, "Path to the binaries list", True],
+                   "procmon_path": [None, "Path to procmon binary", True],
+                   "output": ["results.xml", "Name of the XML output file", True]}
 
         # Constructor of the parent class
         super(CustomModule, self).__init__(information, options)
 
-        # Class atributes, initialization in the run_module method
-        # after the user has set the values
-        self._binlist_path = None
-        self._procmmon_path = None
-        self._output = None
+        # Class atributes, options values can be used through the
+        # self.args variable
         self.lock = Lock()
 
     # This module must be always implemented, it is called by the run option
     def run_module(self):
         # To access user provided attributes, use self.options dictionary
-        self._binlist_path = str(self.options["binlist_path"][0])
-        self._procmmon_path = str(self.options["procmon_path"][0])
-        self._output = str(self.options["output"][0])
 
         Thread(target=self.monitoring).start()
 
@@ -56,13 +50,13 @@ class CustomModule(Module):
         try:
             self.lock.acquire()
             subprocess.check_call(
-                [self._procmmon_path, "/BackingFile", "tmp"])
+                [self.args["procmon_path"], "/BackingFile", "tmp"])
             self.lock.release()
         except subprocess.CalledProcessError as error:
             raise error
 
     def binaries(self):
-        with open(self._binlist_path, 'r') as binfile:
+        with open(self.args["binlist_path"], 'r') as binfile:
             return binfile.read().splitlines()
 
     def execute(self, proc):
@@ -87,7 +81,7 @@ class CustomModule(Module):
         self.lock.acquire()
         try:
             subprocess.check_call(
-                [self._procmmon_path, "/OpenLog", "tmp.PML", "/SaveAs", self._output])
+                [self.args["procmon_path"], "/OpenLog", "tmp.PML", "/SaveAs", self.args["output"]])
         except subprocess.CalledProcessError as error:
             raise error
 
