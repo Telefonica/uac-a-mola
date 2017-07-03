@@ -28,3 +28,9 @@ class Module(object):
     def run_module(self):
         raise Exception(
             'ERROR: run_module method must be implemented in the child class')
+
+    def check_arguments(self):
+        for key, value in self.options.iteritems():
+            if value[2] is True and str(value[0]) == "None":
+                return False
+        return True

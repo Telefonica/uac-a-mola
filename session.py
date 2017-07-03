@@ -35,7 +35,7 @@ class Session(object):
             if value[2] is True:
                 if str(value[0]) == "None":
                     print " [" \
-                        + colored("REQUIRED", 'red', attrs=['bold']) \
+                        + colored("REQUIRED", 'yellow', attrs=['bold']) \
                         + "] %s" % key \
                         + " = %s (%s)\n" % (value[0], value[1])
                 else:
@@ -57,6 +57,10 @@ class Session(object):
         print ""
 
     def run(self):
+        if not(self._module.check_arguments()):
+            print colored('[!] REQUIRED ARGUMENTS NOT SET...exiting', 'red', attrs=['bold'])
+            return
+
         print colored('[+] Running module...', 'green', attrs=['bold'])
         try:
             self._module.run_module()

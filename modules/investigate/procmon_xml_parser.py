@@ -9,48 +9,43 @@ class CustomModule(Module):
                        "Author": "Santiago Hernandez Ramos"}
 
         # -----------name-------description---default_value
-        options = {"xml_path": [None, "Path to the XML file"],
-                   "word": [None, "Keyword for searching for in the XML"],
-                   "process_name": [None, "Keyword for searching by process name in the XML"],
-                   "not_found": [True, "Search only events not found"],
-                   "operation": [None, "Search by Win Register operation"],
-                   "destination": [None, "Destination File to write results"]}
+        options = {"xml_path": [None, "Path to the XML file", True],
+                   "word": [None, "Keyword for searching for in the XML", False],
+                   "process_name": [None, "Keyword for searching by process name in the XML", False],
+                   "not_found": [True, "Search only events not found", False],
+                   "operation": [None, "Search by Win Register operation", False],
+                   "destination": [None, "Destination File to write results", False]}
 
         # Constructor of the parent class
         super(CustomModule, self).__init__(information, options)
 
         # Class attributes
         self._tree = None
+        # To access user supplied attributes use the
+        # structure self.args["atribute_name"]
 
     # This module must be always implemented, it is called by the run option
     def run_module(self):
-        # To access user provided attributes, use self.options dictionary
-        xml_path = str(self.options["xml_path"][0])
-        word = str(self.options["word"][0])
-        not_found = str(self.options["not_found"][0])
-        operation = str(self.options["operation"][0])
-        process_name = str(self.options["process_name"][0])
-        destination = str(self.options["destination"][0])
 
-        self.parse_tree(xml_path)
+        self.parse_tree()
         events = self.events()
 
-        if not_found != "False":
+        if self.args["not_found"] != "False":
             events = self.events_notfound(events)
-        if word != "None":
-            events = self.events_word(word, events)
-        if operation != "None":
-            events = self.events_operation(operation, events)
-        if process_name != "None":
-            events = self.events_proc_name(process_name, events)
+        if self.args["word"] != "None":
+            events = self.events_word(events)
+        if self.args["operation"] != "None":
+            events = self.events_operation(events)
+        if self.args["process_name"] != "None":
+            events = self.events_proc_name(events)
 
-        self.results(destination, events)
+        self.results(events)
 
-    def results(self, destination=None, events=None):
-        if destination is not None:
+    def results(self, events=None):
+        if self.args["destination"] is not None:
             try:
-                f = open(destination, "w")
-                print "[*] Writting to file: %s" % str(destination)
+                f = open(self.args["destination"], "w")
+                print "[*] Writting to file: %s" % str(self.args["destination"])
             except:
                 print "[!] Error opening the file"
 
@@ -63,31 +58,31 @@ class CustomModule(Module):
             for p in self.paths(events):
                 print p
 
-    def parse_tree(self, xml_path):
-        self._tree = etree.parse(xml_path)
+    def parse_tree(self):
+        self._tree = etree.parse(self.args["xml_path"])
 
     def events(self):
         return self._tree.findall('.//event')
 
-    def events_proc_name(self, proc_name, events):
+    def events_proc_name(self, events):
         return [e for e in events
                 for o in e.findall('.//Process_Name')
-                if o.text == proc_name]
+                if o.text == self.args["process_name"]]
 
     def events_notfound(self, events):
         return [e for e in events
                 for o in e.findall('.//Result')
                 if o.text == 'NAME NOT FOUND']
 
-    def events_word(self, word, events):
+    def events_word(self, events):
         return [e for e in events
                 for o in e.findall('.//Path')
-                if word in o.text]
+                if self.args["word"] in o.text]
 
-    def events_operation(self, op, events):
+    def events_operation(self, events):
         return [e for e in events
                 for o in e.findall('.//Operation')
-                if op in o.text]
+                if self.args["operation"] in o.text]
 
     def paths(self, events):
         return [p.text for e in events

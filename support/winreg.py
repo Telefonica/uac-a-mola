@@ -77,3 +77,14 @@ class Registry(object):
                 return winreg.DeleteValue(key, value)
             except WindowsError as error:
                 print "Error al eliminar el valor"
+
+    def create_value(self, key, value_name, value):
+        """ Creates a value THAT DOESN'T EXIST, we need
+        to keep track of the keys that we are creating
+        """
+        self.no_restore = False
+        try:
+            return winreg.SetValueEx(key, value_name, 0, winreg.REG_SZ, value)
+        except WindowsError as error:
+            print "Error al crear clave"
+            self.no_restore = True

