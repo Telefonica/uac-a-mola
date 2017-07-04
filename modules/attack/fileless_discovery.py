@@ -4,6 +4,7 @@ from support.winreg import Registry
 from _winreg import HKEY_CURRENT_USER as HKCU
 import subprocess
 import psutil
+import time
 
 
 class CustomModule(Module):
@@ -37,36 +38,16 @@ class CustomModule(Module):
         openkey_nf = self.events_nf_openkey()
         queryvalue_nf = self.events_nf_queryvalue()
 
-        # print "[*] Searching for openkey not found values"
-        # for p in self.get_paths_byword(openkey_nf, None):
-        #     print "[*] Inserting into %s" % str(p)
-        #     k = self.reg.create_key(HKCU, "\\".join(p.split("\\")[1:]))
-        #     self.reg.set_value(HKCU, "\\".join(
-        #         p.split("\\")[1:]), "C:\\Windows\\System32\\cmd.exe")
-
-        #     previous_pid = psutil.pids()
-        #     self.execute(self.args["binary"])
-        #     new_pid = psutil.pids()
-
-        #     if self.is_cmd_open():
-        #         self._results.append(str(p))
-        #         self.kill('cmd')
-        #     else:
-        #         self.kill(self.args["binary"].split(
-        #             '.')[0], previous_pid, new_pid)
-
-        #     self.reg.restore(k)
-
-        #########################################################
-        print "[*] Searching for queryvalue not found values"
-        for p in self.get_paths_byword(queryvalue_nf, None):
+        print "[*] Searching for openkey not found values"
+        for p in self.get_paths_byword(openkey_nf, None):
             print "[*] Inserting into %s" % str(p)
-            k = self.reg.create_key(HKCU, "\\".join(p.split("\\")[1:-1]))
-            self.reg.create_value(k, p.split(
-                "\\")[-1], "C:\\Windows\\System32\\cmd.exe")
+            k = self.reg.create_key(HKCU, "\\".join(p.split("\\")[1:]))
+            self.reg.set_value(HKCU, "\\".join(
+                p.split("\\")[1:]), "C:\\Windows\\System32\\cmd.exe")
 
             previous_pid = psutil.pids()
             self.execute(self.args["binary"])
+            time.sleep(2)
             new_pid = psutil.pids()
 
             if self.is_cmd_open():
@@ -78,11 +59,34 @@ class CustomModule(Module):
 
             self.reg.restore(k)
 
+        #########################################################
+        print "[*] Searching for queryvalue not found values"
+        for p in self.get_paths_byword(queryvalue_nf, None):
+            print "[*] Inserting into %s" % str(p)
+            k = self.reg.create_key(HKCU, "\\".join(p.split("\\")[1:-1]))
+            self.reg.create_value(k, p.split(
+                "\\")[-1], "C:\\Windows\\System32\\cmd.exe")
+
+            previous_pid = psutil.pids()
+            self.execute(self.args["binary"])
+            time.sleep(2)
+            new_pid = psutil.pids()
+
+            if self.is_cmd_open():
+                self._results.append(str(p))
+                self.kill('cmd')
+            else:
+                self.kill(self.args["binary"].split(
+                    '.')[0], previous_pid, new_pid)
+
+            self.reg.restore(k, p.split("\\")[-1])
+
         self.results()
 
     def init_import_modules(self):
         self.p = Xml_parser()
-        self.p.parse_tree(self.args["xml_file"])
+        self.p.set_value("xml_path", self.args["xml_file"])
+        self.p.parse_tree()
         self.reg = Registry()
 
     def results(self):
@@ -121,12 +125,16 @@ class CustomModule(Module):
             pass
 
     def events_nf_openkey(self):
-        events_nf_hkcu = self.p.events_word("HKCU", self.events_nf)
-        return self.p.events_operation("RegOpenKey", events_nf_hkcu)
+        self.p.set_value("word", "HKCU")
+        self.p.set_value("operation", "RegOpenKey")
+        events_nf_hkcu = self.p.events_word(self.events_nf)
+        return self.p.events_operation(events_nf_hkcu)
 
     def events_nf_queryvalue(self):
-        events_nf_hkcu = self.p.events_word("HKCU", self.events_nf)
-        return self.p.events_operation("RegQueryValue", events_nf_hkcu)
+        self.p.set_value("word", "HKCU")
+        self.p.set_value("operation", "RegQueryValue")
+        events_nf_hkcu = self.p.events_word(self.events_nf)
+        return self.p.events_operation(events_nf_hkcu)
 
     def get_paths_byword(self, events, intext):
         if intext is not None:
