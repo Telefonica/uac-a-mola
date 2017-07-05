@@ -1,3 +1,10 @@
+# This file is part of uac-a-mola
+# Copyright (C) Santiago Hernandez Ramos <shramos@protonmail.com>
+#
+# DESCRIPTION
+# This file parses an xml produced by Procmon application and returns
+# a dictionary with all the Windows Registry associated operations.
+
 from xml.etree.ElementTree import iterparse
 import os
 from termcolor import colored
@@ -7,7 +14,6 @@ class ProcmonXmlParser():
 
     def __init__(self, xml_path):
         self.path = xml_path
-
         self.events = dict(RegOpenKey=[],
                            RegQueryValue=[],
                            RegCloseKey=[],

@@ -1,3 +1,10 @@
+# This file is part of uac-a-mola
+# Copyright (C) Santiago Hernandez Ramos <shramos@protonmail.com>
+#
+# DESCRIPTION
+# This file is an interface that simplify some of the methods implemented
+# by _winreg module.
+
 import _winreg as winreg
 
 
@@ -65,6 +72,8 @@ class Registry(object):
                 return "\\".join(s[i - 1:])
 
     def set_value(self, key, subkey, value):
+        """ Set a value in a custom subkey
+        """
         try:
             return winreg.SetValue(key, subkey, winreg.REG_SZ, value)
         except WindowsError as error:
