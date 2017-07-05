@@ -53,7 +53,7 @@ class ProcmonXmlParser():
                     if 'Reg' in operation.text:
                         self.events[operation.text].append(elem)
 
-            print colored("[*] PARSING FINISHED CORRECTLY",
+            print colored("[*] PARSING FINISHED CORRECTLY\n",
                           'green', attrs=['bold'])
 
             return self.events

@@ -20,12 +20,12 @@ def by_operation(events, operation):
     return events
 
 
-def by_notfound(events):
+def by_result(events, result):
     to_remove = {}
     for k in events.keys():
         to_remove[k] = []
         for e in events[k]:
-            if e.find("Result").text != "NAME NOT FOUND":
+            if e.find("Result").text.lower() != result.lower():
                 to_remove[k].append(e)
     return remove(events, to_remove)
 
@@ -56,6 +56,16 @@ def by_pid(events, pid):
         to_remove[k] = []
         for e in events[k]:
             if e.find("PID").text.lower() != str(pid).lower():
+                to_remove[k].append(e)
+    return remove(events, to_remove)
+
+
+def by_pattern(events, pattern):
+    to_remove = {}
+    for k in events.keys():
+        to_remove[k] = []
+        for e in events[k]:
+            if pattern.lower() not in e.find("Path").text.lower():
                 to_remove[k].append(e)
     return remove(events, to_remove)
 
