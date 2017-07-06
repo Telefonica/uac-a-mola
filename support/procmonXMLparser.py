@@ -8,6 +8,8 @@
 from xml.etree.ElementTree import iterparse
 import os
 from termcolor import colored
+from contextlib import closing
+import shelve
 
 
 class ProcmonXmlParser():
@@ -50,8 +52,11 @@ class ProcmonXmlParser():
             for event, elem in tree:
                 operation = elem.find('Operation')
                 if elem.tag == 'event' and operation is not None:
-                    if 'Reg' in operation.text:
+                    if 'Reg' in operation.text and 'HKCU' in elem.find('Path').text \
+                       and 'NAME NOT FOUND' in elem.find('Result').text:
                         self.events[operation.text].append(elem)
+                    else:
+                        elem.clear()
 
             print colored("[*] PARSING FINISHED CORRECTLY\n",
                           'green', attrs=['bold'])
@@ -61,5 +66,3 @@ class ProcmonXmlParser():
         except Exception as error:
             print colored("[*] PARSING FAILED", 'red', attrs=['bold'])
             print colored(" => " + str(error), 'red', attrs=['bold'])
-
-        return None

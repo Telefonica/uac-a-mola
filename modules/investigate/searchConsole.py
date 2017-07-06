@@ -37,7 +37,6 @@ class CustomModule(Module):
                             Process_Name=None,
                             PID=None,
                             Path=None,
-                            Result="name not found",
                             Pattern=None)
 
     # This method must be always implemented, it is called by the run option
@@ -46,6 +45,8 @@ class CustomModule(Module):
         print self.get_banner()
         xmlParser = ProcmonXmlParser(self.args["xml_path"])
         self.events = xmlParser.parse()
+        # Releasing memory
+        del xmlParser
 
         while True:
             if self.filters["Process_Name"] is None:
@@ -75,6 +76,8 @@ class CustomModule(Module):
                     print colored("[!] WRONG FILTER: Please respect uppercase letters", 'red', attrs=['bold'])
                     continue
 
+            elif len(user_input) > 3 and user_input[0] == 'set' and user_input[1] == 'Pattern':
+                self.filters[user_input[1]] = user_input[2:]
             elif len(user_input) == 3 and user_input[0] == 'set':
                 if user_input[1] in ["Process_Name", "Operation", "PID",
                                      "Path", "Result", "Pattern"]:
@@ -111,29 +114,27 @@ class CustomModule(Module):
 
     def run(self):
         events = copy.deepcopy(self.events)
+
         if str(self.filters["Process_Name"]).lower() != "None".lower():
             events = by_process(events, self.filters["Process_Name"])
         if str(self.filters["Operation"]).lower() != "None".lower():
             events = by_operation(events, self.filters["Operation"])
         if str(self.filters["PID"]).lower() != "None".lower():
             events = by_pid(events, self.filters["PID"])
-        if str(self.filters["Result"]).lower() != "None".lower():
-            events = by_result(events, self.filters["Result"])
         if str(self.filters["Pattern"]).lower() != "None".lower():
             events = by_pattern(events, self.filters["Pattern"])
 
-        self.pretty_print(parse_events(events))
+        self.pretty_print(events)
 
     def pretty_print(self, events):
-
         for k in events.keys():
             print colored(k, 'green', attrs=['bold'])
-            print colored("=================\n", 'red', attrs=['bold'])
+            print colored("=================", 'green', attrs=['bold'])
             for e in events[k]:
                 for k2, value in self.display.iteritems():
                     if str(value).lower() == "true":
-                        print e[k2]
-        print ""
+                        print e.find(k2).text
+                print ""
 
     def get_banner(self):
         banner = """  ____                      _      ____                      _

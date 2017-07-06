@@ -1,3 +1,12 @@
+# This file is part of uac-a-mola
+# Copyright (C) Santiago Hernandez Ramos <shramos@protonmail.com>
+#
+# DESCRIPTION
+# This file is aimed for simplify the process of information gathering
+# throught Procmon about a list of binaries and the process of parsing_results
+# this information into XML format.
+
+
 from module import Module
 import subprocess
 from threading import Lock, Thread
@@ -13,8 +22,9 @@ class CustomModule(Module):
 
         # -----------name--------default_value---description---------mandatory?
         options = {"binlist_path": [None, "Path to the binaries list", True],
-                   "procmon_path": [None, "Path to procmon binary", True],
-                   "output": ["results.xml", "Name of the XML output file", True]}
+                   "procmon_path": ["binaries\\ProcessMonitor\\Procmon.exe", "Path to procmon binary", True],
+                   "output": ["results.xml", "Name of the XML output file", True],
+                   "sleep_time": [2, "Time period between the execution of two binaries (must be an integer)", True]}
 
         # Constructor of the parent class
         super(CustomModule, self).__init__(information, options)
@@ -33,10 +43,10 @@ class CustomModule(Module):
         time.sleep(5)
 
         for b in self.binaries():
-            print "  [+]Executing %s ..." % b
+            print "  [+] Executing %s ..." % b
             previous_pid = psutil.pids()
             self.execute(b)
-            time.sleep(3)
+            time.sleep(int(self.args["sleep_time"]))
             new_pid = psutil.pids()
             print "  [-] Killing the process"
 

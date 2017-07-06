@@ -27,6 +27,7 @@ def by_result(events, result):
         for e in events[k]:
             if e.find("Result").text.lower() != result.lower():
                 to_remove[k].append(e)
+
     return remove(events, to_remove)
 
 
@@ -61,12 +62,16 @@ def by_pid(events, pid):
 
 
 def by_pattern(events, pattern):
+    if not isinstance(pattern, list):
+        pattern = list(pattern)
     to_remove = {}
     for k in events.keys():
         to_remove[k] = []
         for e in events[k]:
-            if pattern.lower() not in e.find("Path").text.lower():
-                to_remove[k].append(e)
+            for p in pattern:
+                if p.lower() not in e.find("Path").text.lower():
+                    to_remove[k].append(e)
+                    break
     return remove(events, to_remove)
 
 
