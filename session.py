@@ -36,7 +36,7 @@ class Session(object):
                     if flag > 1:
                         print " |"
                     print " |_[" \
-                        + colored("REQUIRED", 'yellow', attrs=['bold']) \
+                        + colored("REQUIRED", 'red', attrs=['bold']) \
                         + "] %s" % key \
                         + " = %s (%s)" % (value[0], value[1])
                 else:
@@ -62,7 +62,7 @@ class Session(object):
                         + colored("%s" % value[0], 'green', attrs=['bold']) \
                         + " (% s)" % (value[1])
 
-        print ""
+        print "\n"
 
     def run(self):
         if not(self._module.check_arguments()):

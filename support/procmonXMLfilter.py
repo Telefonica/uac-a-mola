@@ -27,7 +27,6 @@ def by_result(events, result):
         for e in events[k]:
             if e.find("Result").text.lower() != result.lower():
                 to_remove[k].append(e)
-
     return remove(events, to_remove)
 
 
@@ -75,6 +74,9 @@ def by_pattern(events, pattern):
     return remove(events, to_remove)
 
 
+# BE REALLY CAREFULL IF YOU WANT TO PARSE DE EVENTS IN THIS FORM
+# SINCE A LOT OF EVENTS WILL FILL THE MEMORY AND ADD A LOT OF
+# PROCESSING TIME
 def parse_events(events):
     new_events = {}
     for k in events.keys():

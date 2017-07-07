@@ -91,8 +91,8 @@ class CustomModule(Module):
 
     def show(self):
 
-        print colored("\n FILTERS", 'yellow', attrs=['bold'])
-        print colored(" -------", 'yellow', attrs=['bold'])
+        print colored("\n Filters", 'yellow', attrs=['bold'])
+        print " -------"
 
         for key, value in self.filters.iteritems():
             if str(self.filters[key]).lower() == "none":
@@ -100,8 +100,8 @@ class CustomModule(Module):
             else:
                 print " |_" + colored(key + " = " + str(value), 'green', attrs=['bold'])
 
-        print colored("\n DISPLAY", 'yellow', attrs=['bold'])
-        print colored(" -------", 'yellow', attrs=['bold'])
+        print colored("\n Display", 'yellow', attrs=['bold'])
+        print " -------"
 
         for key, value in self.display.iteritems():
             if str(self.display[key]).lower() == "false":
@@ -127,8 +127,8 @@ class CustomModule(Module):
 
     def pretty_print(self, events):
         for k in events.keys():
-            print colored(k, 'green', attrs=['bold'])
-            print colored("=================", 'green', attrs=['bold'])
+            print colored("\n" + k, 'green', attrs=['bold'])
+            print colored("-" * len(k), 'green', attrs=['bold'])
             for e in events[k]:
                 for k2, value in self.display.iteritems():
                     if str(value).lower() == "true":

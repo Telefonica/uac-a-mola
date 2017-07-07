@@ -1,5 +1,15 @@
+# This file is part of uac-a-mola
+# Copyright (C) Santiago Hernandez Ramos <shramos@protonmail.com>
+#
+# DESCRIPTION
+# This file parses an xml produced by Procmon application and returns
+# a list of binaries that are vulnerable to dll hijacking uac bypass
+
+
 from module import Module
 from modules.investigate.procmon_xml_parser import CustomModule as Xml_parser
+from support.procmonXMLparser import ProcmonXmlParser
+import support.procmonXMLfilter as Filter
 import time
 import subprocess
 import psutil
@@ -8,13 +18,13 @@ import psutil
 class CustomModule(Module):
     def __init__(self):
         information = {"Name": "DLL discovery",
-                       "Description": "This module search in a list of binaries for DLL hijacking UAC bypass",
+                       "Description": "This module searches in a list of binaries for DLL hijacking UAC bypass",
                        "Author": "Santiago Hernandez Ramos"}
 
         # -----------name-----default_value--description
-        options = {"binary": [None, "Target of the UAC fileless bypass search", True],
+        options = {"binlist": [None, "Path to a list of binaries for testing", True],
                    "xml_file": [None, "Path to a procmon like XML file", True],
-                   "malicious_dll": [None, "Path to a malicious_dll to insert", True]}
+                   "malicious_dll": [None, "Path to a malicious dll", True]}
 
         # Constructor of the parent class
         super(CustomModule, self).__init__(information, options)
@@ -30,22 +40,19 @@ class CustomModule(Module):
     def run_module(self):
         self.init_import_modules()
 
-        self.events = self.p.events()
-        self.events_nf = self.p.events_notfound(self.events)
-
-        print "\n[*] Analizing binary: " + str(self.args["binary"])
-        nf = self.events_nf_operation()
-        paths = self.p.paths(nf)
-        for p in paths:
-            print p
-            if self.args["binary"] + ".Local" in p:
-                self.handle_dll_local(p, self.args["binary"])
-
+        for b in self.binaries():
+            print "\n[*] Analizing binary: " + str(self.args["binary"])
+            events = Filter.by_process(self.p, b)
+            events = Filter.by_operation(events, "CreateFile")
+            for e in events:
+                path = e.find("Path").text
+                print path
+                if b + ".Local" in path:
+                    self.handle_dll_local(path, b)
         self.results()
 
     def init_import_modules(self):
-        self.p = Xml_parser()
-        self.p.set_value("xml_path", self.args["xml_file"])
+        self.p = ProcmonXmlParser(self.args["xml_file"])
 
     def handle_dll_local(self, subpath, binary):
         path = subpath + "\\x86_microsoft.windows.common-controls_6595b64144ccf1df_6.0.15063.0_none_583b8639f462029f\\"
@@ -114,7 +121,6 @@ class CustomModule(Module):
         except:
             pass
 
-    def events_nf_operation(self):
-        events_proc = self.p.events_proc_name(
-            self.args["binary"], self.events_nf)
-        return self.p.events_operation("CreateFile", events_proc)
+    def binaries(self):
+        with open(self.args["binlist"], 'r') as binfile:
+            return binfile.read().splitlines()

@@ -31,7 +31,8 @@ class ProcmonXmlParser():
                            RegKeySecurity=[],
                            RegSetKeySecurity=[],
                            RegQueryMultipleValueKey=[],
-                           RegFlushKey=[])
+                           RegFlushKey=[],
+                           CreateFile=[])
 
     def parse(self):
 
@@ -52,7 +53,9 @@ class ProcmonXmlParser():
             for event, elem in tree:
                 operation = elem.find('Operation')
                 if elem.tag == 'event' and operation is not None:
-                    if 'Reg' in operation.text and 'HKCU' in elem.find('Path').text \
+                    if ('Reg' in operation.text or 'CreateFile' in operation.text) \
+                       and 'HKLM' not in elem.find('Path').text \
+                       and 'HKCR' not in elem.find('Path').text \
                        and 'NAME NOT FOUND' in elem.find('Result').text:
                         self.events[operation.text].append(elem)
                     else:
