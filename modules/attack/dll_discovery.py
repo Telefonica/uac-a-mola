@@ -7,12 +7,12 @@
 
 
 from module import Module
-from modules.investigate.procmon_xml_parser import CustomModule as Xml_parser
 from support.procmonXMLparser import ProcmonXmlParser
 import support.procmonXMLfilter as Filter
 import time
 import subprocess
 import psutil
+import copy
 
 
 class CustomModule(Module):
@@ -39,10 +39,10 @@ class CustomModule(Module):
     # This module must be always implemented, it is called by the run option
     def run_module(self):
         self.init_import_modules()
-
         for b in self.binaries():
+            events = copy.deepcopy(self.p)
             print "\n[*] Analizing binary: " + b
-            events = Filter.by_process(self.p, b)
+            events = Filter.by_process(events, b)
             events = Filter.by_operation(events, "CreateFile")
             for e in events['CreateFile']:
                 print e.find("Path")
@@ -74,7 +74,8 @@ class CustomModule(Module):
             prev_pids = psutil.pids()
             subprocess.check_call(["powershell", "-C", binary])
             time.sleep(1)
-            if self.is_cmd_open():
+
+            if self.is_cmd_open(prev_pids):
                 if binary not in self._results["vulnerables"]:
                     self._results["vulnerables"].append(binary)
             else:
@@ -117,9 +118,13 @@ class CustomModule(Module):
                 pids.append(p)
         return pids
 
-    def is_cmd_open(self):
+    def is_cmd_open(self, prev_pids):
+        created_pids = []
+        for pid in psutil.pids():
+            if pid not in prev_pids:
+                created_pids.append(pid)
         try:
-            return 'cmd.exe' in [psutil.Process(p).name() for p in psutil.pids()]
+            return 'cmd.exe' in [psutil.Process(p).name() for p in created_pids]
         except:
             pass
 
