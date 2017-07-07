@@ -41,10 +41,11 @@ class CustomModule(Module):
         self.init_import_modules()
 
         for b in self.binaries():
-            print "\n[*] Analizing binary: " + str(self.args["binary"])
+            print "\n[*] Analizing binary: " + b
             events = Filter.by_process(self.p, b)
             events = Filter.by_operation(events, "CreateFile")
-            for e in events:
+            for e in events['CreateFile']:
+                print e.find("Path")
                 path = e.find("Path").text
                 print path
                 if b + ".Local" in path:
@@ -52,7 +53,8 @@ class CustomModule(Module):
         self.results()
 
     def init_import_modules(self):
-        self.p = ProcmonXmlParser(self.args["xml_file"])
+        parser = ProcmonXmlParser(self.args["xml_file"])
+        self.p = parser.parse()
 
     def handle_dll_local(self, subpath, binary):
         path = subpath + "\\x86_microsoft.windows.common-controls_6595b64144ccf1df_6.0.15063.0_none_583b8639f462029f\\"
