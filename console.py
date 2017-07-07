@@ -16,6 +16,8 @@ readline.parse_and_bind("tab: complete")
 readline.set_completer(comp.complete)
 
 print banners.get_banner()
+print colored(' [+] ', 'yellow', attrs=['bold']) + 'Starting the console...'
+print colored(' [*] ', 'green', attrs=['bold']) + 'Console ready!\n\n'
 
 session = None
 

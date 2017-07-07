@@ -19,40 +19,48 @@ class Session(object):
         info = self._module.get_information()
         print ""
         for key, value in info.iteritems():
+            print colored(" %s" % key, 'yellow', attrs=['bold'])
             print ' ' + '-' * len(key)
-            print " %s" % key
-            print ' ' + '-' * len(key)
-            print " => %s\n" % value
+            print " |_%s\n" % value
 
     def options(self):
         opts = self._module.get_options_dict()
+        print colored("\n Options (Field = Value)", 'yellow', attrs=['bold'])
         print " -----------------------"
-        print " Options (Field = Value)"
-        print " -----------------------"
+        flag = 0
         for key, value in opts.iteritems():
-
+            flag += 1
             # Parameter is mandataroy
             if value[2] is True:
                 if str(value[0]) == "None":
-                    print " [" \
+                    if flag > 1:
+                        print " |"
+                    print " |_[" \
                         + colored("REQUIRED", 'yellow', attrs=['bold']) \
                         + "] %s" % key \
-                        + " = %s (%s)\n" % (value[0], value[1])
+                        + " = %s (%s)" % (value[0], value[1])
                 else:
-                    print " %s" % key \
+                    if flag > 1:
+                        print " |"
+                    print " |_%s" % key \
                         + " = " \
                         + colored("%s" % value[0], 'green', attrs=['bold']) \
-                        + " (% s)\n" % (value[1])
+                        + " (% s)" % (value[1])
+
             # Parameter is optional
             elif value[2] is False:
                 if str(value[0]) == "None":
-                    print " [OPTIONAL] %s" % key \
-                        + " = %s (%s)\n" % (value[0], value[1])
+                    if flag > 1:
+                        print " |"
+                    print " |_[OPTIONAL] %s" % key \
+                        + " = %s (%s)" % (value[0], value[1])
                 else:
-                    print " %s" % key \
+                    if flag > 1:
+                        print " |"
+                    print " |_%s" % key \
                         + " = " \
                         + colored("%s" % value[0], 'green', attrs=['bold']) \
-                        + " (% s)\n" % (value[1])
+                        + " (% s)" % (value[1])
 
         print ""
 

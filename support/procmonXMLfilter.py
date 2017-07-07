@@ -63,7 +63,7 @@ def by_pid(events, pid):
 
 def by_pattern(events, pattern):
     if not isinstance(pattern, list):
-        pattern = list(pattern)
+        pattern = [pattern]
     to_remove = {}
     for k in events.keys():
         to_remove[k] = []

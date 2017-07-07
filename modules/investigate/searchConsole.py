@@ -90,25 +90,24 @@ class CustomModule(Module):
         pass
 
     def show(self):
-        print colored("\n-----------------", 'yellow', attrs=['bold'])
-        print colored("|     FILTERS    |", 'yellow', attrs=['bold'])
-        print colored("-----------------", 'yellow', attrs=['bold'])
+
+        print colored("\n FILTERS", 'yellow', attrs=['bold'])
+        print colored(" -------", 'yellow', attrs=['bold'])
 
         for key, value in self.filters.iteritems():
             if str(self.filters[key]).lower() == "none":
-                print key + " = " + str(value)
+                print " |_" + key + " = " + str(value)
             else:
-                print colored(key + " = " + str(value), 'green', attrs=['bold'])
+                print " |_" + colored(key + " = " + str(value), 'green', attrs=['bold'])
 
-        print colored("\n-----------------", 'yellow', attrs=['bold'])
-        print colored("|     DISPLAY    |", 'yellow', attrs=['bold'])
-        print colored("-----------------", 'yellow', attrs=['bold'])
+        print colored("\n DISPLAY", 'yellow', attrs=['bold'])
+        print colored(" -------", 'yellow', attrs=['bold'])
 
         for key, value in self.display.iteritems():
             if str(self.display[key]).lower() == "false":
-                print key + " = " + str(value)
+                print " |_" + key + " = " + str(value)
             else:
-                print colored(key + " = " + str(value), 'green', attrs=['bold'])
+                print " |_" + colored(key + " = " + str(value), 'green', attrs=['bold'])
 
         print ""
 
