@@ -1,4 +1,3 @@
-
 if __name__ == "__main__":
-    from uacamola.main import console
+    from console import console
     console()

@@ -1,5 +1,6 @@
 import os
 import re
+from termcolor import colored
 import readline
 
 COMMANDS = ['load', 'set', 'show', 'run',
@@ -14,7 +15,7 @@ class Completer(object):
         "List directory 'root' appending the path separator to subdirs."
         res = []
         for name in os.listdir(root):
-            if "__init__" not in name and "pyc" not in name:
+            if "__init__" not in name and "pyc" not in name and '~' not in name:
                 path = os.path.join(root, name)
                 if os.path.isdir(path):
                     name += os.sep
@@ -49,6 +50,7 @@ class Completer(object):
             return self._complete_path(args[-1])
         elif ' ' == args[0]:
             return ''
+
         return self._complete_path('modules')
 
     def complete_show(self, args):

@@ -14,7 +14,7 @@ def console():
     # Configuring the commpleter
     comp = Completer()
     readline.set_completer_delims(' \t\n;')
-    readline.parse_and_bind("# TODO: ab: complete")
+    readline.parse_and_bind("tab: complete")
     readline.set_completer(comp.complete)
 
     print banners.get_banner()
