@@ -62,7 +62,7 @@ class CustomModule(Module):
                 new_pid = psutil.pids()
                 if self.is_cmd_open(previous_pid):
                     self._results.append(str(path))
-                    self.kill('cmd')
+                    self.kill('cmd', previous_pid, new_pid)
                 else:
                     self.kill(b.split('.')[0], previous_pid, new_pid)
                 self.reg.restore(k)
@@ -82,19 +82,19 @@ class CustomModule(Module):
                     HKCU, "\\".join(path.split("\\")[1:-1]))
                 self.reg.create_value(k, path.split(
                     "\\")[-1], "C:\\Windows\\System32\\cmd.exe")
-            previous_pid = psutil.pids()
-            self.execute(b)
-            time.sleep(int(self.args["sleep_time"]))
-            new_pid = psutil.pids()
 
-            if self.is_cmd_open(previous_pid):
-                self._results.append(str(path))
-                self.kill('cmd')
-            else:
-                self.kill(self.args["binary"].split(
-                    '.')[0], previous_pid, new_pid)
+                previous_pid = psutil.pids()
+                self.execute(b)
+                time.sleep(int(self.args["sleep_time"]))
+                new_pid = psutil.pids()
 
-            self.reg.restore(k, path.split("\\")[-1])
+                if self.is_cmd_open(previous_pid):
+                    self._results.append(str(path))
+                    self.kill('cmd', previous_pid, new_pid)
+                else:
+                    self.kill(b.split('.')[0], previous_pid, new_pid)
+
+                self.reg.restore(k, path.split("\\")[-1])
 
         self.results()
 
