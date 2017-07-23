@@ -2,15 +2,20 @@ import os
 import re
 from termcolor import colored
 import readline
-
-COMMANDS = ['load', 'set', 'show', 'run',
-            'back', 'quit', 'help']
+import sys
 
 RE_SPACE = re.compile('.*\s+$', re.M)
 
 
 class Completer(object):
 
+    def __init__(self, commands):
+        self.commands = commands
+        self.setcommands = None
+
+    def setcommands(self, commands):
+        self.setcommands = commands
+        
     def _listdir(self, root):
         "List directory 'root' appending the path separator to subdirs."
         res = []
@@ -42,7 +47,10 @@ class Completer(object):
     def complete_load(self, args):
         "Completions for the 'load' command."
         if not args:
-            return self._complete_path('modules')
+            path = sys.argv[0].split('\\')
+            path[-1] = 'modules'
+            path = "\\".join(path)
+            return self._complete_path(path)
         elif len(args) > 1:
             return []
         # treat the last arg as a path and complete it
@@ -50,8 +58,12 @@ class Completer(object):
             return self._complete_path(args[-1])
         elif ' ' == args[0]:
             return ''
-
-        return self._complete_path('modules')
+        # If the access is out of the actual directory, we
+        # need to correct the path
+        path = sys.argv[0].split('\\')
+        path[-1] = 'modules'
+        path = "\\".join(path)
+        return self._complete_path(path)
 
     def complete_show(self, args):
         "Not doing nothing for this command right now"
@@ -79,17 +91,17 @@ class Completer(object):
         line = readline.get_line_buffer().split()
         # show all commands
         if not line:
-            return [c + ' ' for c in COMMANDS][state]
+            return [c + ' ' for c in self.commands][state]
         # account for last argument ending in a space
         if RE_SPACE.match(buffer):
             line.append('')
         # resolve command to the implementation function
         cmd = line[0].strip()
-        if cmd in COMMANDS:
+        if cmd in self.commands:
             impl = getattr(self, 'complete_%s' % cmd)
             args = line[1:]
             if args:
                 return (impl(args) + [None])[state]
             return [cmd + ' '][state]
-        results = [c + ' ' for c in COMMANDS if c.startswith(cmd)] + [None]
+        results = [c + ' ' for c in self.commands if c.startswith(cmd)] + [None]
         return results[state]

@@ -1,12 +1,16 @@
 import importlib
 from termcolor import colored
+from support.brush import Brush
+import sys
 
 
 class Session(object):
 
     def __init__(self, path):
-        self._module = self.instantiate_module(path[:-3])
+        self.brush = Brush()
+        self._module = self.instantiate_module(self.import_path(path))
         self._path = path
+       
 
     def header(self):
         return self._path.split("\\")[-1]
@@ -19,13 +23,13 @@ class Session(object):
         info = self._module.get_information()
         print ""
         for key, value in info.iteritems():
-            print colored(" %s" % key, 'yellow', attrs=['bold'])
+            self.brush.color(" %s\n" % key, 'YELLOW')
             print ' ' + '-' * len(key)
             print " |_%s\n" % value
 
     def options(self):
         opts = self._module.get_options_dict()
-        print colored("\n Options (Field = Value)", 'yellow', attrs=['bold'])
+        self.brush.color("\n Options (Field = Value)\n", 'YELLOW')
         print " -----------------------"
         flag = 0
         for key, value in opts.iteritems():
@@ -35,17 +39,17 @@ class Session(object):
                 if str(value[0]) == "None":
                     if flag > 1:
                         print " |"
-                    print " |_[" \
-                        + colored("REQUIRED", 'red', attrs=['bold']) \
-                        + "] %s" % key \
-                        + " = %s (%s)" % (value[0], value[1])
+                    sys.stdout.write(" |_[")
+                    self.brush.color("REQUIRED", 'RED')
+                    sys.stdout.write("] %s" % key)
+                    sys.stdout.write(" = %s (%s)\n" % (value[0], value[1]))
                 else:
                     if flag > 1:
                         print " |"
-                    print " |_%s" % key \
-                        + " = " \
-                        + colored("%s" % value[0], 'green', attrs=['bold']) \
-                        + " (% s)" % (value[1])
+                    sys.stdout.write(" |_%s" % key)
+                    sys.stdout.write(" = ")
+                    self.brush.color("%s" % value[0], 'GREEN')
+                    sys.stdout.write(" (% s)\n" % (value[1]))
 
             # Parameter is optional
             elif value[2] is False:
@@ -57,44 +61,59 @@ class Session(object):
                 else:
                     if flag > 1:
                         print " |"
-                    print " |_%s" % key \
-                        + " = " \
-                        + colored("%s" % value[0], 'green', attrs=['bold']) \
-                        + " (% s)" % (value[1])
+                    sys.stdout.write(" |_%s" % key)
+                    sys.stdout.write(" = ")
+                    self.brush.color("%s" % value[0], 'GREEN')
+                    sys.stdout.write(" (% s)\n" % (value[1]))
 
         print "\n"
 
     def run(self):
         if not(self._module.check_arguments()):
-            print colored('[!] REQUIRED ARGUMENTS NOT SET...exiting', 'red', attrs=['bold'])
+            self.brush.color('[!] REQUIRED ARGUMENTS NOT SET...exiting\n', 'RED')
             return
 
-        print colored('[+] Running module...', 'green', attrs=['bold'])
+        self.brush.color('[+] Running module...\n', 'GREEN')
         try:
             self._module.run_module()
+        except KeyboardInterrupt:
+            self.brush.color('[!] Exiting the module...\n', 'RED')
         except Exception as error:
-            print colored('[!] Error running the module:', 'red', attrs=['bold'])
-            print colored("  => " + str(error), 'red', attrs=['bold'])
-        print colored('[+] Module exited', 'green', attrs=['bold'])
-
+            self.brush.color('[!] Error running the module:\n', 'RED')
+            self.brush.color("  => " + str(error), 'RED')
+            self.brush.color('\n[+] Module exited\n', 'GREEN')
+        except IndentationError as error:
+            self.brush.color('[!] Error running the module:\n', 'RED')
+            self.brush.color("  => " + str(error), 'RED')
+            self.brush.color('\n[+] Module exited\n', 'GREEN')
+ 
     def set(self, name, value):
         if name not in self._module.get_options_names():
-            print colored('[!] Field not found', 'red', attrs=['bold'])
+            self.brush.color('[!] Field not found\n', 'RED')
             return
         self._module.set_value(name, value)
 
     def instantiate_module(self, path):
         try:
             print '[+] Loading module...'
-            m = importlib.import_module(path.replace('\\', '.'))
-            print colored('[+] Module loaded!', 'green', attrs=['bold'])
+            m = importlib.import_module(path)
+            self.brush.color('[+] Module loaded!\n', 'GREEN')
             return m.CustomModule()
         except ImportError as error:
-            print colored('[!] Error importing the module:', 'red', attrs=['bold'])
-            print colored("  =>" + str(error), 'red', attrs=['bold'])
+            self.brush.color('[!] Error importing the module:\n', 'RED')
+            self.brush.color("  => " + str(error), 'RED')
+            print ""
             return None
 
     def correct_module(self):
         if self._module is None:
             return False
         return True
+
+    def import_path(self, path):
+        path = path.split('\\')
+        path = path[path.index('modules'):]
+        return ".".join(path)[:-3]
+
+    def get_options(self):
+        return ['set ' + key for key, value in self._module.get_options_dict().iteritems()]

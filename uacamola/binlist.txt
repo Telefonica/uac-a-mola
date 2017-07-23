@@ -1,0 +1,6 @@
+bthudtask.exe
+dccw.exe
+dcomcnfg.exe
+dfrgui.exe
+eudcedit.exe
+eventvwr.exe

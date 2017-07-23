@@ -1,5 +1,16 @@
+# This file is part of uac-a-mola
+# Copyright (C) Santiago Hernandez Ramos <shramos@protonmail.com>
+#
+# DESCRIPTION
+# This is the parent class, all the Custom modules must inherit of it
+
+
+from support.brush import Brush
+
+
 class Module(object):
     def __init__(self, information, options):
+        self.brush = Brush()
         self._information = information
         self.options = options
         self.args = {}
@@ -34,3 +45,18 @@ class Module(object):
             if value[2] is True and str(value[0]) == "None":
                 return False
         return True
+
+    def print_ok(self, s):
+        s = "SUCCESS: " + s
+        self.brush.color(s, 'GREEN')
+
+    def print_ko(self, s):
+        s = "ERROR: " + s
+        self.brush.color(s, 'RED')
+
+    def print_warning(self, s):
+        s = "WARNING: " + s
+        self.brush.color(s, 'MAGENTA')
+
+    def print_info(self, s):
+        self.brush.color(s, 'YELLOW')

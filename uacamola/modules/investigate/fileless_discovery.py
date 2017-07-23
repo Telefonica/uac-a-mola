@@ -14,7 +14,6 @@ from _winreg import HKEY_CURRENT_USER as HKCU
 import subprocess
 import psutil
 import copy
-from termcolor import colored
 import time
 
 
@@ -34,7 +33,7 @@ class CustomModule(Module):
 
         # Class atributes, initialization in the run_module method
         # after the user has set the values
-        self._results = []
+        self._results = {}
         self.p = None
         self.events = None
         self.events_nf = None
@@ -44,9 +43,10 @@ class CustomModule(Module):
     def run_module(self):
         self.init_import_modules()
 
-        print colored("[*] Searching for openkey not found values", 'yellow', attrs=['bold'])
+        self.print_info("[*] Searching for openkey not found values\n")
         for b in self.binaries():
-            print colored("[*] Processing " + b, 'yellow', attrs=['bold'])
+            self.results[b] = []
+            self.print_info("[*] Processing %s\n" % b)
             events = copy.deepcopy(self.p)
             events = Filter.by_process(events, b)
             events = Filter.by_operation(events, "RegOpenKey")
@@ -61,7 +61,8 @@ class CustomModule(Module):
                 time.sleep(int(self.args["sleep_time"]))
                 new_pid = psutil.pids()
                 if self.is_cmd_open(previous_pid):
-                    self._results.append(str(path))
+                    if str(path) not in self._results[b]:
+                        self._results[b].append(str(path))
                     self.kill('cmd', previous_pid, new_pid)
                 else:
                     self.kill(b.split('.')[0], previous_pid, new_pid)
@@ -69,9 +70,9 @@ class CustomModule(Module):
 
         #########################################################
 
-        print "[*] Searching for queryvalue not found values"
+        self.print_info("[*] Searching for queryvalue not found values\n")
         for b in self.binaries():
-            print colored("[*] Processing " + b, 'yellow', attrs=['bold'])
+            self.print_info("[*] Processing %s\n" % b)
             events = copy.deepcopy(self.p)
             events = Filter.by_process(events, b)
             events = Filter.by_operation(events, "RegQueryValue")
@@ -89,7 +90,8 @@ class CustomModule(Module):
                 new_pid = psutil.pids()
 
                 if self.is_cmd_open(previous_pid):
-                    self._results.append(str(path))
+                    if str(path) not in self.results[b]:
+                        self._results[b].append(str(path))
                     self.kill('cmd', previous_pid, new_pid)
                 else:
                     self.kill(b.split('.')[0], previous_pid, new_pid)
@@ -104,8 +106,15 @@ class CustomModule(Module):
         self.reg = Registry()
 
     def results(self):
-        for r in self._results:
-            print r
+        print "\n\n"
+        self.print_info("RESULTS")
+        print "-------\n"
+
+        for key in self.results.keys():
+            self.print_info(key)
+            print "|" * len(key)
+            for v in self.results[key]:
+                print "|_" + v
 
     def kill(self, proc, last_pids=None, new_pids=None):
         new_pids = self.last_process_created(last_pids, new_pids)

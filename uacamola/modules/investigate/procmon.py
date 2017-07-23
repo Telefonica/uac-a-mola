@@ -49,7 +49,6 @@ class CustomModule(Module):
             time.sleep(int(self.args["sleep_time"]))
             new_pid = psutil.pids()
             print "  [-] Killing the process"
-
             self.kill(b.split('.')[0], previous_pid, new_pid)
 
         print "\n[*] PLEASE CLOSE PROCMON PROCESS\n"
@@ -79,11 +78,12 @@ class CustomModule(Module):
             return
 
     def kill(self, proc, last_pids=None, new_pids=None):
-        new_pids = self.last_process_created(last_pids, new_pids)
+
         try:
+            new_pids = self.last_process_created(last_pids, new_pids)
             for p in new_pids:
                 subprocess.check_call(["tskill", str(p)])
-        except subprocess.CalledProcessError:
+        except:
             print "[!!] The process %s can't be killed" % proc
             return
 
