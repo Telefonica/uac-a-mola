@@ -43,7 +43,7 @@ class CustomModule(Module):
         time.sleep(5)
 
         for b in self.binaries():
-            print "  [+] Executing %s ..." % b
+            self.print_info("  [+] Executing %s ..." % b)
             previous_pid = psutil.pids()
             self.execute(b)
             time.sleep(int(self.args["sleep_time"]))
@@ -82,7 +82,7 @@ class CustomModule(Module):
         try:
             new_pids = self.last_process_created(last_pids, new_pids)
             for p in new_pids:
-                subprocess.check_call(["tskill", str(p)])
+                subprocess.check_call(["taskkill", "/t", "/f", str(p)])
         except:
             print "[!!] The process %s can't be killed" % proc
             return
