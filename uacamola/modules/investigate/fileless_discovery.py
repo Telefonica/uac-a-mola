@@ -61,7 +61,7 @@ class CustomModule(Module):
 		    if path in self._visited or path in self._FORBIDDEN_PATHS:
                         continue
                     self._visited.append(path)
-                    print "[*] Inserting into %s" % path
+                    self.print_info("[*] Inserting into %s" % path)
                     k = self.reg.create_key(HKCU, "\\".join(path.split("\\")[1:]))
                     self.reg.set_value(HKCU, "\\".join(
                         path.split("\\")[1:]), "C:\\Windows\\System32\\cmd.exe")
@@ -96,7 +96,7 @@ class CustomModule(Module):
 		    if path in self._visited or path in self._FORBIDDEN_PATHS:
                         continue
                     self._visited.append(path)
-                    print "[*] Inserting into %s" % str(path)
+                    self.print_info("[*] Inserting into %s" % str(path))
                     k = self.reg.create_key(
                         HKCU, "\\".join(path.split("\\")[1:-1]))
                     self.reg.create_value(k, path.split(
@@ -142,7 +142,7 @@ class CustomModule(Module):
         new_pids = self.last_process_created(last_pids, new_pids)
         try:
             for p in new_pids:
-                subprocess.check_call(["taskkill","/f", "/pid", str(p), ">", "NULL"])
+                subprocess.check_call(["taskkill","/t", "/f", "/pid", str(p)])
         except subprocess.CalledProcessError:
             print "[!!] The process %s can't be killed" % proc
             return
