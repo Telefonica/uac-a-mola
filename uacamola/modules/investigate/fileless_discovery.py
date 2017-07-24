@@ -52,7 +52,7 @@ class CustomModule(Module):
             for b in self.binaries():
 	        self._visited = []
                 self._results[b] = []
-                self.print_info("[*] Processing %s\n" % b)
+                self.print_ok("[*] Processing %s\n" % b)
                 events = copy.deepcopy(self.p)
                 events = Filter.by_process(events, b)
                 events = Filter.by_operation(events, "RegOpenKey")
@@ -87,7 +87,7 @@ class CustomModule(Module):
             self.print_info("[*] Searching for queryvalue not found values\n")
             for b in self.binaries():
                 self._visited = []
-                self.print_info("[*] Processing %s\n" % b)
+                self.print_ok("[*] Processing %s\n" % b)
                 events = copy.deepcopy(self.p)
                 events = Filter.by_process(events, b)
                 events = Filter.by_operation(events, "RegQueryValue")
