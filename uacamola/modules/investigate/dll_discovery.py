@@ -36,19 +36,22 @@ class CustomModule(Module):
         self.p = None
         self.events = None
         self.events_nf = None
+        self._visited = []
 
     # This module must be always implemented, it is called by the run option
     def run_module(self):
         self.init_import_modules()
         self.print_info("[*] STARTING DLL HIJACKING DISCOVERY")
         for b in self.binaries():
+            self._visited = []
             self.print_info("[*] Analizing binary: " + b + "...")
             events = copy.deepcopy(self.p)
             events = Filter.by_process(events, b)
             events = Filter.by_operation(events, "CreateFile")
             for e in events['CreateFile']:
                 path = e.find("Path").text
-                if b + ".Local" in path:
+                if path not in self._visited and b + ".Local" in path:
+                    self._visited.append[path]
                     print "[*] Suspicious path found: " + path
                     self.handle_dll_local(path, b)
         self.results()
