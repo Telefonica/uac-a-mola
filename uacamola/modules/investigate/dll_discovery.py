@@ -110,7 +110,7 @@ class CustomModule(Module):
         new_pids = self.last_process_created(last_pids, new_pids)
         try:
             for p in new_pids:
-                subprocess.check_call(["taskkill", "/t", "/f", str(p)])
+                subprocess.check_call(["taskkill", "/t", "/f", "/pid", str(p)])
         except subprocess.CalledProcessError:
             print "[!!] The process %s can't be killed" % proc
             return
