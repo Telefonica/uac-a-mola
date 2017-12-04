@@ -1,3 +1,5 @@
+#--encoding: utf-8--
+
 from autocomplete import Completer
 from session import Session
 import readline

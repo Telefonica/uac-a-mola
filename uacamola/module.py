@@ -1,3 +1,5 @@
+#--encoding: utf-8--
+
 # This file is part of uac-a-mola
 # Copyright (C) Santiago Hernandez Ramos <shramos@protonmail.com>
 #
@@ -6,6 +8,7 @@
 
 
 from support.brush import Brush
+import subprocess
 
 
 class Module(object):
@@ -60,3 +63,10 @@ class Module(object):
 
     def print_info(self, s):
         self.brush.color(s, 'YELLOW')
+
+    def run_binary(self, binary, args=None):
+        payload = [binary]
+        if args:
+            payload += args
+        subprocess.call(payload)
+

