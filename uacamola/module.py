@@ -8,7 +8,7 @@
 
 
 from support.brush import Brush
-import subprocess
+import os
 
 
 class Module(object):
@@ -65,8 +65,7 @@ class Module(object):
         self.brush.color(s, 'YELLOW')
 
     def run_binary(self, binary, args=None):
-        payload = [binary]
+        payload = binary
         if args:
-            payload += args
-        subprocess.call(payload)
-
+            payload += " " + " ".join(args)
+        os.system(payload)

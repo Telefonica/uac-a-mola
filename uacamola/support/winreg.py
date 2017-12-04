@@ -97,3 +97,11 @@ class Registry(object):
         except WindowsError as error:
             print "Error al crear clave"
             self.no_restore = True
+
+    def delete_key(self, key, subkey):
+        """ Deletes a particular key
+        """
+        try:
+            return winreg.DeleteKey(key, subkey)
+        except WindowsError as error:
+            print "Error al eliminar la clave"

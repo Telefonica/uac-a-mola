@@ -30,7 +30,6 @@ def console():
     session = None
 
     while True:
-
         if session is None:
             user_input = raw_input(
                 colored('uac-a-mola> ', 'yellow', attrs=['bold'])).split()
