@@ -33,7 +33,8 @@ class CustomListener:
             return
         # This module must be executed as administrator
         if not admin.isUserAdmin():
-            admin.runAsAdmin()
+            print "ERROR: Please run uacamola as ADMINISTRATOR"
+            return
         registry = Registry()
         self.add_debugger(registry, binlist)
         try:
