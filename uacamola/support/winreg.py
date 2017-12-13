@@ -7,7 +7,6 @@
 
 import _winreg as winreg
 
-
 class Registry(object):
 
     def __init__(self):
@@ -105,3 +104,11 @@ class Registry(object):
             return winreg.DeleteKey(key, subkey)
         except WindowsError as error:
             print "Error al eliminar la clave"
+
+    def open_key(self, key, subkey):
+        """ Opens a key
+        """
+        try:
+            return winreg.OpenKey(key, subkey, 0, winreg.KEY_WRITE)
+        except:
+            return None
