@@ -85,8 +85,8 @@ In this case, we will need to set a password that the agents will use to comunic
 fodhelper_ag = Agent('fodhelper.exe', 'localhost', 5555, 'uacamola')
 fodhelper_ag.send_forbidden("Software\\Classes\\ms-settings\\Shell\\Open\\command")
 ```
-_uacamola_ will be the password use for authentication and comunication, but we can change that password.
-The other parameter required is a path to a file that contains a list of binary to monitor, this binaries must have an agent.pyw file in the agents paths.
+_uacamola_ will be the password used for authentication and comunication, but we can change it.
+The other parameter required is a path to a file that contains a list of binaries to monitor, this binaries must have an agent.pyw file in the agents paths.
 ```
 uac-a-mola[bypass_mitigation.py]> show
 
