@@ -1,5 +1,5 @@
 from multiprocessing.connection import Listener
-from multiprocessing import Process
+from multiprocessing import Process, RLock
 from winreg import *
 import admin
 import os
@@ -7,6 +7,8 @@ from _winreg import HKEY_CURRENT_USER as HKCU
 from _winreg import HKEY_LOCAL_MACHINE as HKLM
 from support.brush import Brush
 import ctypes
+import sys
+import time
 
 
 class CustomListener:
@@ -37,15 +39,20 @@ class CustomListener:
             return
         registry = Registry()
         self.add_debugger(registry, binlist)
-        try:
-            while True:
-                listener = Process(target=self._listen, args=())
-                listener.start()
-                listener.join()
-        except:
-            self.del_debugger(registry, binlist)
-            return
+        # Creating a thread that will create the listeners
+        create_listeners = Process(target=self._create_listeners, args=())
+        create_listeners.start()
+        # Waiting for exiting
+        raw_input("\n--- Press ENTER for quit mitigate mode ---\n\n")
+        self.del_debugger(registry, binlist)
+        return
 
+    def _create_listeners(self):
+        while True:
+            listener = Process(target=self._listen, args=())
+            listener.start()
+            listener.join()
+            
     def _listen(self):
         """ Listen for information from a client and performs
         actions related to the windows registry """
@@ -89,7 +96,7 @@ class CustomListener:
                                   "debugger",
                                   payload)
     def del_debugger(self, registry, binlist):
-        """ Adds debugger registry key for 
+        """ Deletes debugger registry key for 
         each of the processes in the list """
         for binary in binlist:
             path = self.DEBUG_KEY + binary

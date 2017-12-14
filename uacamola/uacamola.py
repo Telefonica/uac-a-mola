@@ -3,7 +3,6 @@
 from autocomplete import Completer
 from session import Session
 import readline
-import sys
 import os
 import banners
 from support.brush import Brush
@@ -49,7 +48,7 @@ def console():
             session = None
 
         elif user_input[0] in END_COMMANDS:
-            sys.exit(0)
+            os._exit(-1)
 
         elif user_input[0] == 'load':
             if (len(user_input) == 1):
