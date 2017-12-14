@@ -52,6 +52,71 @@ uac-a-mola[fileless_fodhelper.py]> run
 [+] Running module...
 ```
 ## Mitigate modules
+Using the mitigation methods is also quite simple, but they have a slightly more complex internal structure that will be explained in this section. In relation to its use, the first thing that must be done is to load the available mitigation module:
+```
+uac-a-mola> load modules\mitigation\bypass_mitigation.py
+[+] Loading module...
+[+] Module loaded!
+uac-a-mola[bypass_mitigation.py]> show
+
+ Author
+ ------
+ |_Santiago Hernandez Ramos
+
+ Name
+ ----
+ |_This module will instrument the binaries selected and detect possible UAC bypasses
+
+ Description
+ -----------
+ |_Bypass Mitigation
+
+ Options (Field = Value)
+ -----------------------
+ |_[REQUIRED] password = None (Password for connection)
+ |
+ |_[REQUIRED] binlist_file = None (File with a list of binaries to hook, one on each line)
+ |
+ |_port = 5555 (Port for connection)
+
+```
+In this case, we will need to set a password that the agents will use to comunicate with the listener that will be executed in uacamola framework. We can find the agents in the path _uacamola/support/agents_ , opening that files we can see the password:
+```
+fodhelper_ag = Agent('fodhelper.exe', 'localhost', 5555, 'uacamola')
+fodhelper_ag.send_forbidden("Software\\Classes\\ms-settings\\Shell\\Open\\command")
+```
+_uacamola_ will be the password use for authentication and comunication, but we can change that password.
+The other parameter required is a path to a file that contains a list of binary to monitor, this binaries must have an agent.pyw file in the agents paths.
+```
+uac-a-mola[bypass_mitigation.py]> show
+
+ Author
+ ------
+ |_Santiago Hernandez Ramos
+
+ Name
+ ----
+ |_This module will instrument the binaries selected and detect possible UAC bypasses
+
+ Description
+ -----------
+ |_Bypass Mitigation
+
+ Options (Field = Value)
+ -----------------------
+ |_password = uacamola (Password for connection)
+ |
+ |_binlist_file = bins.txt (File with a list of binaries to hook, one on each line)
+ |
+ |_port = 5555 (Port for connection)
+
+uac-a-mola[bypass_mitigation.py]> run
+[+] Running module...
+[+] Executing the listener...
+
+--- Press ENTER for quit mitigate mode ---
+```
+Just filling this fields and executing the _run_ command, uacamola will start monitoring all the activity related to UAC bypass in the binaries that appear in the list. If dangerous activity is detected, it will automatically prune the dangerous branch (of the file system or registry) and it will execute the binary in a secure way. For exiting this mode we just need to press de _ENTER_ key.
 
 ## Research modules
 # Write your own modules
