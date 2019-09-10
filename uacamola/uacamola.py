@@ -72,11 +72,14 @@ def console():
                 if session is None:
                     brush.color('[!] Please, load a module\n', 'RED')
                     continue
-                elif len(user_input) != 3:
-                    brush.color('[!] Wrong number of arguments for set\n', 'RED')
+                elif len(user_input) <3:
+                    brush.color('[!] Please, assigns a value\n', 'RED')
                     continue
+                elif len(user_input) > 3:
+                   data = " ".join(user_input[2:])
                 else:
-                    session.set(user_input[1], user_input[2])
+                    data = user_input[2]
+                session.set(user_input[1], data)
 
             elif user_input[0] == 'run':
                 if session is None:
